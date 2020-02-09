@@ -1,0 +1,389 @@
+// HOWTO.txt
+
+############################################
+# 開発プロジェクトの作成                   #
+############################################
+
+$ mkdir electron-chat
+$ cd electron-chat
+$ npm init -y
+
+Electronのインストール
+$ npm install --save-dev electron
+
+PhotonKit
+$ npm install --save connors/photon
+
+React
+$ npm install --save react react-dom react-router-dom  // react-router ???
+
+Babel
+$ npm install --save-dev babel-cli babel-preset-es2015 babel-preset-react
+
+./
+├── README.md
+├── firebase_error.png
+├── index.html
+├── node_modu
+├── package-lock.json
+├── package.json
+└── src
+    ├── main
+    │   ├── createWindow.js
+    │   ├── index.js
+    │   └── setAppMenu.js
+    └── renderer
+        ├── Errors.jsx
+        ├── Home.jsx
+        ├── Login.jsx
+        ├── Room.jsx
+        ├── Rooms.jsx
+        ├── Signup.jsx
+        └── appjsx
+
+src/main/index.js
+--------------------------------------------------
+import { app } from "electron";
+import createWindow from "./createWindow";
+
+app.on('ready', () => {
+  createWindow();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on('activate', (_e, hasVisibleWindows) => {
+  if (!hasVisibleWindows) {
+    createWindow();
+  }
+})
+--------------------------------------------------
+
+
+src/main/createWindow.js
+--------------------------------------------------
+import { BrowserWindow } from "electron";
+
+let win;
+
+function createWindow () {
+  win = new BrowserWindow({
+    webPreferences: {
+      nodeIntegration: true
+    }
+  });
+  win.loadURL(`file://${__dirname}/../../index.html`);
+  // win.loadURL('http://127.0.0.1:6000/');
+  win.on('close', () => {
+    win = null;
+  });
+}
+
+export default createWindow;
+--------------------------------------------------------
+
+
+index.html
+---------------------------------------------------
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8"/>
+    <title>Electron Chat</title>
+    <link rel="stylesheet" href="node_modules/photon/dist/css/photon.css"/>
+  </head>
+  <body>
+    <div class="window">
+      <h1>Electron</h1>
+      <div id="app" class="window-content"></div>
+    </div>
+    <script>require('./.tmp/renderer/app.js')</script>
+  </body>
+</html>
+------------------------------------------------------
+
+
+src/renderer/app.jsx
+----------------------------------------------------------
+import React from 'react'
+import { render } from 'react-dom'
+
+render(
+  <div>Hello, Electron and React JSX</div>,
+  document.getElementById('app')
+)
+----------------------------------------------------------
+
+
+.babelrc
+----------------------------------------------------------
+{
+  "presets": ["es2015", "react"]
+}
+-----------------------------------------------------------
+
+package.json(部分)
+---------------------------------------------------------
+...
+"script": {
+  "build": "babel --out-dir .tmp src",
+  "watch": "babel --watch --out-dir .tmp src",
+  "start": "electron .",
+}
+...
+--------------------------------------------------------
+
+
+#######################################################
+# ルーティング                                        #
+#######################################################
+
+src/renderer/Login.jsx
+--------------------------------------------------------
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default class Login extends React.Component {
+  render() {
+    return (
+      <div>
+        <h2>Login</h2>
+        <Link to="/rooms">Login</Link> <br />
+        <Link to="/signup">Create new account</Link>
+      </div>
+    );
+  }
+}
+--------------------------------------------------------
+
+src/renderer/Signup.jsx
+-----------------------------------------------------------
+import React from "react";
+import { Link } from "react-router";
+
+export default class Signup extends React.Component {
+  render() {
+    return (
+      <div>
+        <h2>Signup</h2>
+        <Link to="/rooms">Create new account</Link> <br />
+        <Link to="/login">cancel</Link>
+      </div>
+    );
+  }
+}
+--------------------------------------------------------------
+
+src/renderer/Rooms.jsx
+------------------------------------------------------------
+import React from "react";
+import { Link } from "react-router-dom";
+
+export default class Rooms extends React.Component {
+  render() {
+    return (
+      <div>
+        <h2>Rooms</h2>
+        <ul>
+          <li><Link to="/rooms/1">Room 1</Link></li>
+          <li><Link to="/rooms/2">Room 2</Link></li>
+        </ul>
+        <div>{ this.props.children }</div>
+      </div>
+    );
+  }
+}
+------------------------------------------------------
+
+src/renderer/Room.jsx
+------------------------------------------------------
+import React from "react";
+
+export default class Room extends React.Component {
+  constructor (props) {
+    super(props)
+    console.log(props)
+  }
+  render() {
+    return (
+      <div>
+        <h3>Room{this.props.match.params.roomId}</h3>
+      </div>
+    );
+  }
+}
+-------------------------------------------------------
+
+src/renderer/app.jsx (更新)
+-------------------------------------------------------
+// app.jsx
+
+import React from "react";
+import { render } from "react-dom";
+import { BrowserRouter as Router,  Route, Link } from "react-router-dom";
+import Login from "./Login";
+import Signup from "./Signup";
+import Rooms from "./Rooms";
+import Room from "./Room";
+import Home from "./Home"
+
+// const Home = () => (<div><h2>Home</h2></div>)
+// const Login = () => (<div><h2>Login</h2></div>)
+// const Signup = () => (<div><h2>Signup</h2></div>)
+// const Rooms = () => (<div><h2>Rooms</h2></div>)
+// const Room = ({match}) => (<div><h2>{match.params.roomId}</h2></div>)
+
+const styles = {
+  li: {
+    display: 'inline',
+    marginRight: '20px',
+    cursor: 'pointer'
+  }
+}
+
+// Routing
+const appRouting = (
+  <div>
+    <h1>ルーティング</h1>
+    <Router>
+      <ul style={{padding: '10px'}}>
+        <li style={styles.li}><Link to="/">Home</Link></li>
+        <li style={styles.li}><Link to="/login">Login</Link></li>
+        <li style={styles.li}><Link to="/signup">Signup</Link></li>
+        <li style={styles.li}><Link to="/rooms">Rooms</Link></li>
+      </ul>
+      <div>
+        <Route exact path="/" component={Home} />
+        <Route path="/login" component={Login} />
+        <Route path="/signup" component={Signup} />
+        <Route path="/rooms" component={Rooms} />
+        <Route path="/rooms/:roomId" component={Room} />
+      </div>
+    </Router>
+  </div>
+)
+
+// Routing init -- これはどうかな？
+// if (!location.hash.length) {
+//   location.hash = "#/login";
+//}
+
+render(
+  appRouting, document.getElementById('app')
+)
+------------------------------------------------------------
+
+
+##################################################
+# メニューの作成                                 #
+##################################################
+
+src/main/setAppMenu.js
+------------------------------------------------------------
+import { app, Menu } from 'electron'
+import createWindow from './createWindow'
+
+function setAppMenu () {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { label: 'New Window', accelerator: 'CmdOrCtrl+N', click: createWindow },
+        { type: 'separator' },
+        { label: 'Close', accelerator: 'CmdOrCtrl+W', role: 'close' }
+      ]
+    },
+    {
+      label: 'Edit',
+      submenu: [
+        { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
+        { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
+        { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
+        { label: 'Select All', accelerator: 'CmdOrCtrl+A', role: 'selectall' },
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        {
+          label: 'Reload',
+          accelerator: 'CmdOrCtrl+R',
+          click: (item, focusedWindow) => focusedWindow && focusedWindow.reload()
+        },
+        {
+          label: 'Toggle DevTools',
+          accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+          click: (item, focusedWindow) => focusedWindow && focusedWindow.toggleDevTools()
+        }
+      ]
+    }
+  ]
+
+  // for macos
+  //
+  if (process.platform === 'darwin') {
+    // テンプレートの先頭にメインメニューを追加
+    template.unshift({
+      label: ap.getName(),
+      submenu: [
+        { role: 'about' },
+        { type: 'separator' },
+        { role: 'services', submenu: [] },
+        { type: 'separator' },
+        { role: 'hide' },
+        { role: 'hideothers' },
+        { role: 'unhide' },
+        { type: 'separator' },
+        { role: 'quit' }
+      ]
+    })
+
+    // テンプレート末尾にウィンドウメニューを追加
+    template.push({
+      role: 'window',
+      submenu: [
+        { role: 'minimize' },
+        { role: 'zoom' }
+      ]
+    })
+  }
+
+  // make Menu-Object from Template
+  const appMenu = Menu.buildFromTemplate(template)
+
+  // 作成したMenuオブジェクトをアプリケーションに追加
+  Menu.setApplicationMenu(appMenu)
+}
+
+export default setAppMenu
+----------------------------------------------------------
+
+
+src/main/index.js
+---------------------------------------------------------
+import { app } from "electron";
+import createWindow from "./createWindow";
+import setAppMenu from './setAppMenu'
+
+app.on('ready', () => {
+  setAppMenu()
+  createWindow();
+});
+
+app.on('window-all-closed', () => {
+  if (process.platform !== "darwin") {
+    app.quit();
+  }
+});
+
+app.on('activate', (_e, hasVisibleWindows) => {
+  if (!hasVisibleWindows) {
+    createWindow();
+  }
+})
+--------------------------------------------------
+修正時刻： Sat Feb  8 11:54:16 2020
