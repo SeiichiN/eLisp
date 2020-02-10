@@ -7,7 +7,7 @@
 
 ;; ローカルマップを設定
 ;; a...z のいずれかを押下すると、指定の関数を実行する
-(setq my-local-map (make-sparse-keymap))
+(defvar my-local-map (make-sparse-keymap))
 (let ( (key ?a) skey x)
   (while (<= key ?z)
     (setq skey (char-to-string key))
@@ -105,4 +105,6 @@
   (delete-char (length str))
   (insert newStr)
   (forward-line 1))
-  
+
+;;;-----------------------------------------------
+;;; 修正時刻： Mon Feb 10 08:46:50 2020
