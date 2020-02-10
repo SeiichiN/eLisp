@@ -1,5 +1,5 @@
 ;;; my-update-timestamp.el
-;;; 修正時刻を追加・更新する
+;;; 修正時刻を更新する
 ;;; Copyright 2022 Seiichi Nukayama
 
 (defun my-update-timestamp ()
@@ -10,7 +10,7 @@
         (my-insert-current-time)
         (message "修正時刻を更新しました"))
     (goto-char (point-max))
-    (insert (concat "修正時刻： " (current-time-string) "\n"))
+    (insert (concat "\n修正時刻： " (current-time-string) "\n"))
     (message "修正時刻がなかったので、作りました")
     nil))
 
