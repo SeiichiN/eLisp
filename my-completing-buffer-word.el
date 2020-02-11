@@ -10,13 +10,21 @@
       (while (not (eobp))
         (re-search-forward "^[A-Za-z]+" nil t)
         (setq word (match-string 0))
-        (setq word-alist (cons (list word) word-alist))
+        (if (not (my-check-word word word-alist))
+          (setq word-alist (cons (list word) word-alist)))
         (forward-line 1))
       ;(message word-alist)
       (completing-read "単語?:" word-alist nil 1)
       )))
 
-
+(defun my-check-word (word word-alist)
+  (interactive)
+  (cond
+   ((null word-alist) nil)
+   ((equal word (car (car word-alist))) word)
+   (t
+    (my-check-word word (cdr word-alist)))
+   ))
 
 
 

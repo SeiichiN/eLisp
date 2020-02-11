@@ -1,0 +1,78 @@
+『改訂版・やさしいEmacs-Lisp講座』の中から、面白かったもの、今後役に立ちそうなものをピックアップして記録しておく。
+
+今度は、112ページの問題。
+
+連想配列（Association Lists）についての問題なのだが、いずれ参考になるかと思うので、記録を残しておく。
+
+問題
+
+カレントバッファに存在する英単語をすべて拾い出し、それらを補完候補とする入力関数 my-completing-buffer-word をつくれ。
+
+（よく似た問題が、『プログラミング言語Ｃ』の中にもあったような・・・。記憶違いか・・・？）
+
+解答
+
+;;; バッファ中にある英単語をすべて記憶し、補完入力できるようにする
+(defun my-completing-buffer-word ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (let (word word-alist)
+      (while (not (eobp))
+        (re-search-forward "^[A-Za-z]+" nil t)
+        (setq word (match-string 0))
+        (if (not (my-check-word word word-alist))
+          (setq word-alist (cons (list word) word-alist)))
+        (forward-line 1))
+      ;(message word-alist)
+      (completing-read "単語?:" word-alist nil 1)
+      )))
+
+;;;
+;;; 引数として word と word-alist をとり、
+;;; word-alist の中に word が含まれていたら、word を返し、
+;;; 含まれていなかったら、nil を返す関数
+;;; word -- 英単語
+;;; word-alist -- たとえば (("apple") ("orange") ("banana"))という
+;;;   連想リスト。最初の "apple" を取り出すには、(car (car word-alist)) 
+;;;   とする必要がある。
+;;; なお、この関数は、assoc関数として、ELisp の中に最初からある。
+;;;
+(defun my-check-word (word word-alist)
+  (interactive)
+  (cond
+   ((null word-alist) nil)
+   ((equal word (car (car word-alist))) word)
+   (t
+    (my-check-word word (cdr word-alist)))
+   ))
+
+cond と 再帰関数
+
+関数 my-check-word は、再帰関数である。
+
+cond式と使って再帰を記述しているのだが、これはgaucheなどのscheme系とは
+少し記述の仕方が違う。
+
+1| (cond
+2|  ((null word-alist) nil)
+3|  ((equal word (car (car word-alist))) word)
+4|  (t
+5|   (my-check-word word (cdr word-alist)))
+6|  ))
+
+2行目・・・終了条件。word-alistがnullになると、nilを返す。
+3行目・・・word-alistの中にwordがあれば、wordを返す。
+4行目・・・2・3行目のいずれにもあてはまらない場合、この行が評価される。
+           この記述の仕方が scheme系と違うところである。
+5行目・・・(cdr word-alist)を第2引数にして、my-check-wordを再帰実行している。
+
+つまり、eLispのcond式には else の働きがないのである。
+
+scheme系での記述は、こうなる。（Gaucheの場合）
+
+(cond
+ ((null word-alist) nil)
+ ((equal word (car (car word-alist))) word)
+ (else my-check-word word (cdr word-alist)))
+
