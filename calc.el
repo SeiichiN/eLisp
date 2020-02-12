@@ -1,5 +1,9 @@
-;;; calc.el 
-;;; 小遣い帳
+;;; calc.el --- 簡単な小遣い帳
+;; Copyright (c) 2020 by Seiichi Nukayama
+;;
+;; Author : Seiichi Nukayama <billie175@gmail.com>
+;; URL    : http://www.billies-works.com/
+;; Version: 0.01
 ;;;
 ;; --BEGIN
 ;; ガソリン代 390
@@ -37,6 +41,5 @@
           (insert (format "%5d" sum))))))     ; 合計を挿入。
     ))
 
-
-
-
+(provide 'calc)
+;;; calc.el ends here

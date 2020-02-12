@@ -20,10 +20,11 @@
     (setq start (point))                 ; その戻った位置をスタートとする
     (setq word (buffer-substring start p))     ; start から p（元の位置）までを word とする
     (setq result (try-completion word my-friends-alist))   ; word を my-friend-alist と比較しその結果を result に入れる
+    (setq result2 (try-completion result my-friends-alist))
     (cond
      ((eq result t) (message "唯一の補完結果です"))        ; t ... 一致している(補完の必要なし)
      ((eq result nil) (error "そのようなアドレスは登録されていません"))   ; nil ... 一致するものがない
-     ((string= result word)                                ; word そのものが結果として帰ってきた場合（部分一致）
+     ((or (string= result word) (eq result2 t))                 ; word そのものが結果として帰ってきた場合（部分一致）
       (with-output-to-temp-buffer "*Completions*"          ; 標準出力をバッファに切り替えて
         (display-completion-list                           ; 候補文字列リストを一覧表示する
          (all-completions word my-friends-alist)))         ; 候補文字列の一覧リストを作成する
@@ -39,16 +40,5 @@
 
 (define-key global-map "\C-cm" 'my-complete-friends)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+;;; ---------------------------------------
+;;; 修正時刻： Wed Feb 12 14:57:11 2020
