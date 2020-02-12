@@ -1,3 +1,5 @@
+Emacs Lisp のお勉強 - 連想リスト
+
 『改訂版・やさしいEmacs-Lisp講座』の中から、面白かったもの、今後役に立ちそうなものをピックアップして記録しておく。
 
 今度は、112ページの問題。
@@ -75,4 +77,7 @@ scheme系での記述は、こうなる。（Gaucheの場合）
  ((null word-alist) nil)
  ((equal word (car (car word-alist))) word)
  (else my-check-word word (cdr word-alist)))
+
+(注)Gaucheはしばらく使っていないので、確かめていない。
+おそらくこうだろうという感じ。
 
