@@ -1,5 +1,5 @@
-;;; nerukichi3-mode.el
-;;; ねるきちモードIII
+;;; nerukichi3-mode.el --- ねるきちモードIII
+;;; Copyright (c) 2020 by Seiichi Nukayama
 ;;;
 ;;; aを押したときに、「ねるきち A ナリ」が存在している場合は、「なるきち A2 ナリ」というふうに
 ;;; 数値をふやしたものに置き換えるようにせよ。
@@ -106,5 +106,7 @@
   (insert newStr)
   (forward-line 1))
 
-;;;-----------------------------------------------
-;;; 修正時刻： Mon Feb 10 08:46:50 2020
+(provide 'nerukichi3-mode)
+;;; nerukichi3-mode.el end here
+;;; 修正時刻： Fri Feb 14 08:14:04 2020
+

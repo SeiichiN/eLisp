@@ -1,5 +1,5 @@
-;;; ねるきちモードII
-;;; Copyright 2020 Seiichi Nukayama
+;;; nerukichi2-mode --- ねるきちモードII
+;;; Copyright (c) 2020 by Seiichi Nukayama
 
 (setq my-local-map (make-sparse-keymap))
 (let ( (key ?a))
@@ -40,8 +40,5 @@
   (let ((x (+ 97 (random 26))))
     x))
 
-
-
-
-
-
+(provide 'nerukichi2-mode)
+;;; nerukichi2-mode.el end here

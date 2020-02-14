@@ -1,5 +1,5 @@
-;;; ねるきちモード
-;;; Copyright 2020 Seiichi Nukayama
+;;; nerukichi-mode.el --- ねるきちモード
+;;; Copyright (c) 2020 by Seiichi Nukayama
 
 (defun nerukichi-mode ()
   (interactive)
@@ -14,3 +14,6 @@
   (interactive)
   (insert "僕ねるきちナリ\n")
   )
+
+(provide 'nerukichi-mode)
+;;; nerukichi-mode.el end here
