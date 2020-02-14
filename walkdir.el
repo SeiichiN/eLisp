@@ -16,6 +16,17 @@
 
 (defvar my-filename "my-mode.el")
 
+(defun get-filename ()
+  (interactive)
+  (save-excursion
+    (let ((p (point)) start filename)
+      (beginning-of-line)
+      (setq start (point))
+      (skip-chars-forward "^\n\t ")
+      (setq filename (buffer-substring start (point)))
+      (message filename)
+      filename)))
+
 (defun set-window (buf)
   (interactive)
   (if (one-window-p)
@@ -32,7 +43,7 @@
       (set-buffer tmpbuf)
       (erase-buffer)
       (progn
-        (insert-file-contents my-filename))
+        (insert-file-contents (get-filename)))
       (select-window current-win)
       (set-buffer current-buf)
       )))
