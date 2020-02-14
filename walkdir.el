@@ -14,8 +14,9 @@
 ;;
 ;;; Code:
 
-(defvar my-filename "my-mode.el")
 
+;; ポイントがあるところのファイル名を取得する
+;; @Return -- filename
 (defun get-filename ()
   (interactive)
   (save-excursion
@@ -27,28 +28,34 @@
       (message filename)
       filename)))
 
-(defun set-window (buf)
-  (interactive)
-  (if (one-window-p)
-      (split-window))
-  (pop-to-buffer buf))
+;; ウィンドウが1つなら、もう1つウィンドウを作成する
+;; @Param: buf -- バッファオブジェクト
+;; 
+;; (defun set-window (buf)
+;;   (interactive)
+;;   (if (one-window-p)
+;;       (split-window))
+;;   (pop-to-buffer buf))
+
 
 (defun show-file ()
   (interactive)
   (save-excursion
-    (let ((current-buf (buffer-name))
+    (let ((my-filename (get-filename))
+          (current-buf (buffer-name))
           (current-win (selected-window))
           (tmpbuf (pop-to-buffer " *temp*")))
-      (set-window tmpbuf)
+      ;(set-window tmpbuf)              ; 別のウィンドウを作成する
       (set-buffer tmpbuf)
       (erase-buffer)
       (progn
-        (insert-file-contents (get-filename)))
+        (insert-file-contents my-filename))
       (select-window current-win)
       (set-buffer current-buf)
       )))
-;    (if (buffer-name tmpbuf) (kill-buffer tmpbuf))))
 
+;; 終了処理
+;; 別のウィンドウを開いていたら、それを閉じて、現在のバッファも閉じる
 (defun walkdir-end ()
   (interactive)
   (if (get-buffer " *temp*") (kill-buffer (get-buffer " *temp*")))
