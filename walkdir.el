@@ -38,6 +38,12 @@
       )))
 ;    (if (buffer-name tmpbuf) (kill-buffer tmpbuf))))
 
+(defun walkdir-end ()
+  (interactive)
+  (if (get-buffer " *temp*") (kill-buffer (get-buffer " *temp*")))
+  (if (get-buffer " *walkdir*") (kill-buffer (get-buffer " *walkdir*")))
+  (if (not (one-window-p)) (delete-other-windows)))
+
 
 (defun walkdir-keymap ()
   (interactive)
@@ -45,6 +51,7 @@
   (define-key my-local-map "n" 'next-line)
   (define-key my-local-map "p" 'previous-line)
   (define-key my-local-map "f" 'show-file)
+  (define-key my-local-map "q" 'walkdir-end)
   (use-local-map my-local-map))
 
 
