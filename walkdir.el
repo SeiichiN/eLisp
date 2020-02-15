@@ -62,15 +62,26 @@
   (if (get-buffer " *walkdir*") (kill-buffer (get-buffer " *walkdir*")))
   (if (not (one-window-p)) (delete-other-windows)))
 
+(defun move-up ()
+  (interactive)
+  (previous-line)
+  (show-file))
+
+(defun move-down ()
+  (interactive)
+  (next-line)
+  (show-file))
 
 (defun walkdir-keymap ()
   (interactive)
   (setq my-local-map (make-sparse-keymap))
-  (define-key my-local-map "n" 'next-line)
-  (define-key my-local-map "p" 'previous-line)
-  (define-key my-local-map "f" 'show-file)
-  (define-key my-local-map "q" 'walkdir-end)
-  (use-local-map my-local-map))
+  (save-restriction
+    (narrow-to-region (point-min) (point-max))
+    (define-key my-local-map "n" 'move-down)
+    (define-key my-local-map "p" 'move-up)
+    (define-key my-local-map "f" 'show-file)
+    (define-key my-local-map "q" 'walkdir-end)
+    (use-local-map my-local-map)))
 
 
 (defun walkdir ()
