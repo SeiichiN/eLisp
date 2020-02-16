@@ -42,6 +42,8 @@
                 (list "head" opt filename)
                 " ")))
     (setq str (replace-regexp-in-string "\n$" "" str ))
+   (if (string-match "ディレクトリです" str)
+       (setq str "<ディレクトリなのだ>"))
     str))
 
 ;; ポイントのところのファイルを別ウィンドウで開く
@@ -137,3 +139,5 @@
 
 (provide 'walkdir)
 ;;; walkdir.el end here
+;;;---------------------------------------
+;;; 修正時刻： Sun Feb 16 23:59:53 2020
