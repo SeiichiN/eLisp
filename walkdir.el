@@ -25,7 +25,6 @@
       (setq start (point))
       (skip-chars-forward "^\n\t ")
       (setq filename (buffer-substring start (point)))
-      ;; (message filename)
       filename)))
 
 
@@ -44,8 +43,6 @@
                             (list "head" opt filename)
                             " ")))
       (setq str (replace-regexp-in-string "\n$" "" str )))
-    ;; (if (string-match "ディレクトリです" str)
-    ;;     (setq str "<ディレクトリなのだ>"))
     str))
 
 ;; ポイントのところのファイルを別ウィンドウで開く
@@ -151,4 +148,4 @@
 (provide 'walkdir)
 ;;; walkdir.el end here
 ;;;---------------------------------------
-;;; 修正時刻： Mon Feb 17 11:41:48 2020
+;;; 修正時刻： Mon Feb 17 19:52:03 2020

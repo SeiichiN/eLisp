@@ -1,6 +1,8 @@
-;;; my-completing-buffer-word
-;;; バッファ中にある単語をすべて記憶し、補完入力できるようにする
-;;; p112
+;;; my-completing-buffer-word.el ---  バッファ中にある単語をすべて記憶し、補完入力できるようにする
+;; p112
+;; Copyright (c) 2020 by Seiichi Nukayama
+;;
+;;; Code:
 
 (defun my-completing-buffer-word ()
   (interactive)
@@ -26,15 +28,7 @@
     (my-check-word word (cdr word-alist)))
    ))
 
-
-
-
-
-
-
-
-
-
-
-
-
+(provide 'my-completing-buffer-word)
+;;; my-completing-buffer-word.el end here
+;;; ------------------------------------
+;;; 修正時刻： Mon Feb 17 23:14:04 2020
