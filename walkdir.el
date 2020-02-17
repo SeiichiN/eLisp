@@ -25,7 +25,7 @@
       (setq start (point))
       (skip-chars-forward "^\n\t ")
       (setq filename (buffer-substring start (point)))
-      (message filename)
+      ;; (message filename)
       filename)))
 
 
@@ -36,14 +36,16 @@
 (defun show-head (filename n)
   (interactive)
   (let (opt str)
-    (setq opt (concat "-n" (number-to-string n)))
-    (setq str (shell-command-to-string
-     (mapconcat #'shell-quote-argument
-                (list "head" opt filename)
-                " ")))
-    (setq str (replace-regexp-in-string "\n$" "" str ))
-   (if (string-match "ディレクトリです" str)
-       (setq str "<ディレクトリなのだ>"))
+    (if (file-directory-p filename)
+        (setq str "<ディレクトリなのだ>")
+      (setq opt (concat "-n" (number-to-string n)))
+      (setq str (shell-command-to-string
+                 (mapconcat #'shell-quote-argument
+                            (list "head" opt filename)
+                            " ")))
+      (setq str (replace-regexp-in-string "\n$" "" str )))
+    ;; (if (string-match "ディレクトリです" str)
+    ;;     (setq str "<ディレクトリなのだ>"))
     str))
 
 ;; ポイントのところのファイルを別ウィンドウで開く
@@ -80,6 +82,13 @@
         (insert-file-contents my-filename t))
       )))
 
+;; カーソル位置のフェースを調べる関数
+(defun describe-face-at-point ()
+  "Return face used at point."
+  (interactive)
+  (message "%s" (get-char-property (point) 'face)))
+
+
 ;; 終了処理
 ;; 別のウィンドウを開いていたら、それを閉じて、現在のバッファも閉じる
 (defun walkdir-end ()
@@ -91,13 +100,15 @@
 ;; p -- 上へ移動
 (defun move-up ()
   (interactive)
-  (previous-line)
+                                        ;(previous-line)
+  (forward-line -1)
   (show-file))
 
 ;; n -- 下へ移動
 (defun move-down ()
   (interactive)
-  (next-line)
+                                        ;(next-line)
+  (forward-line 1)
   (show-file))
 
 ;; キーマップ
@@ -117,21 +128,21 @@
   "簡易ファイルブラウザ"
   (interactive)
   (save-excursion
-    (let ((work-buffer (get-buffer-create " *walkdir*"))
-          (filename-list (directory-files "./")))
+    (let ((work-buffer (get-buffer-create " *walkdir*")) filename-list)
+      (setq filename-list (directory-files "./"))
       (progn
         (switch-to-buffer " *walkdir*")
+        (setq truncate-lines t)
         (message "Current buffer is %s" (buffer-name))
         (setq major-mode 'walkdir-mode
               mode-name "Walkdirモード")
         (erase-buffer)
         (walkdir-keymap)
+        (set-face-foreground 'hl-line "light steel blue")
         (mapcar
          '(lambda (x)
             (insert (format "%-30s " x))
             (insert (format "%-20s\n" (show-head x 1))))
-            ;; (insert (format "%-30s " (substring x 1 (length x))))
-            ;; (insert (format "%-20s" (substring (show-head x 1) 1 (length x)))))
          filename-list)
         (goto-char (point-min))
       ))))
@@ -140,4 +151,4 @@
 (provide 'walkdir)
 ;;; walkdir.el end here
 ;;;---------------------------------------
-;;; 修正時刻： Sun Feb 16 23:59:53 2020
+;;; 修正時刻： Mon Feb 17 11:41:48 2020
