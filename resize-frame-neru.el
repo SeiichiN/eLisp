@@ -7,7 +7,7 @@
 (defun resize-frame-neru ()
   "本に載ってたやり方"
   (interactive)
-  (let (ket (width (frame-width)) (height (frame-height)))
+  (let (key (width (frame-width)) (height (frame-height)))
     (catch 'quit
       (while t
         (setq key (read-char))
