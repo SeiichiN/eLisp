@@ -56,6 +56,8 @@
 
 (defun my-zipview-end ()
   (interactive)
+  (if (get-buffer "*zipview*") (kill-buffer "*zipview*"))
+  (if (get-buffer "*zipcontents*") (kill-buffer "*zipcontents*"))
   (use-local-map my-org-map))
 
 
