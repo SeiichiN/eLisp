@@ -87,7 +87,8 @@
             (setq c (string-match "/" str))
             (setq dirname (concat dirname (substring str 0 (+ c 1))))
             (get-dirname-in (substring str (+ c 1)) dirname))
-        (if (< 0 (length dirname)) dirname
+        (if (< 0 (length dirname))
+            (substring dirname 0 (- (length dirname) 1))  ; 末尾の"/"を削除
           str))))
   (get-dirname-in filename ""))
 
@@ -125,7 +126,9 @@
 (defun show-file (dirname filename)
   (interactive "sInput string dir:\nsInput string file:")
   (let (proc)
-    (setq proc (start-process "fileview" "*zipview*" "unzip" "-p" dirname filename))
+    (setq proc (start-process "fileview" "*zipcontents*" "unzip" "-p" dirname filename))
+    (set-buffer "*zipcontents*")
+    (erase-buffer)
     (set-process-sentinel proc 'my-proc-state-sentinel)
     ))
 
