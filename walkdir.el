@@ -97,14 +97,12 @@
 ;; p -- 上へ移動
 (defun move-up ()
   (interactive)
-                                        ;(previous-line)
   (forward-line -1)
   (show-file))
 
 ;; n -- 下へ移動
 (defun move-down ()
   (interactive)
-                                        ;(next-line)
   (forward-line 1)
   (show-file))
 

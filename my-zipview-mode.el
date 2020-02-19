@@ -29,34 +29,93 @@
         (set-process-sentinel proc 'my-proc-state-sentinel)
         (goto-char (point-min))
         (my-zipview-menu)))))
-        ;; (set-process-sentinel proc 'my-zipview-sentinel)))))
+
+(defun my-updown (n)
+  (interactive)
+  (let ((p (point)) l)
+    (beginning-of-line)
+    (setq l (- p (point)))
+    (forward-line n)
+    (goto-char (+ (point) l))))
+
+(defun up-key ()
+  (interactive)
+  (my-updown -1))
+  
+(defun down-key ()
+  (interactive)
+  (my-updown 1))
+
+(defun left-key ()
+  (interactive)
+  (backward-char))
+
+(defun right-key ()
+  (interactive)
+  (forward-char))
+
+(defun my-zipview-end ()
+  (interactive)
+  (use-local-map my-org-map))
+
 
 (defun my-zipview-menu ()
   (interactive)
-  (let (key)
-    (catch 'quit
-      (while t
-        (setq key (read-char))
-        (cond
-         ((eq key 13) (show-file (get-filename)))
-         ((eq key ?n) (forward-line 1))
-         ((eq key ?p) (forward-line -1))
-         ((eq key ?f) (goto-char (+ (point) 1)))
-         ((eq key ?b) (goto-char (- (point) 1)))
-         (t (throw 'quit t)))))))
+  (setq my-local-map (make-sparse-keymap))
+  (setq my-org-map (copy-keymap my-local-map))
+  (save-excursion
+    (narrow-to-region (point-min) (point-max))
+    (define-key my-local-map "\C-m" 'zip-to-show)
+    (define-key my-local-map "n" 'down-key)
+    (define-key my-local-map "p" 'up-key)
+    (define-key my-local-map "f" 'right-key)
+    (define-key my-local-map "b" 'left-key)
+    (define-key my-local-map "q" 'my-zipview-end)
+    (use-local-map my-local-map)))
+
+;; filename -- ディレクトリ部分も含んだ文字列
+;;             (ex. "work/samplezip/content.html")
+;; @return: dirname -- ディレクトリ部分だけの文字列
+;;                    (ex. "work/samplezip/")
+(defun get-dirname (filename)
+  "パス文字列からディレクトリ部分を抜き出す関数"
+  (interactive "sInput string file:")
+  (defun get-dirname-in (str dirname)
+    (let ((c 0))
+      (if (string-match "/" str)
+          (progn
+            (setq c (string-match "/" str))
+            (setq dirname (concat dirname (substring str 0 (+ c 1))))
+            (get-dirname-in (substring str (+ c 1)) dirname))
+        (if (< 0 (length dirname)) dirname
+          str))))
+  (get-dirname-in filename ""))
+
+
+(defun zip-to-show ()
+  "ひとつの展開ファイルの内容を表示する関数"
+  (interactive)
+  (let (dirname filename)
+    (setq filename (get-filename))
+    (setq dirname (get-dirname filename))
+    (show-file dirname filename)))
+
 
 ;; ポイントのある箇所のファイル名を取得する
 ;; @return: filename
 (defun get-filename ()
   (interactive)
-  (let ((p (point)) line-head start filename)
-    (beginning-of-line)
-    (setq line-head (point))
+  (let ((p (point)) line-head start filename)        ; p -- 現在位置
+    (beginning-of-line)                              ; 行頭へ移動
+    (setq line-head (point))                         ; line-head -- 行頭位置のポイント
+    (goto-char p)                                    ; 現在位置へ移動
+                                        ; 現在位置が30以下なら31へ移動
     (if (< (- p line-head) 30) (goto-char (+ line-head 31)))
-    (skip-chars-backward "^ ")
-    (setq start (point))
-    (skip-chars-forward "^\n\t ")
-    (setq filename (buffer-substring start (point)))
+    (skip-chars-backward "^\n\t ")                   ; ファイル名の最初へ
+    (setq start (point))                             ; start -- ファイル名の先頭
+    (skip-chars-forward "^\n\t ")                    ; 英字とかをスキップ
+    (setq filename (buffer-substring start (point))) ; start...point -- ファイル名
+    (goto-char p)                                    ; 元の位置へ
     (message filename)
     filename))
 
@@ -92,7 +151,7 @@
 (provide 'my-zipview-mode)
 ;;; my-zipview-mode.el ends here
 ;;;--------------------------------
-;;; 修正時刻： Tue Feb 18 07:30:51 2020
+;;; 修正時刻： Wed Feb 19 16:30:02 2020
 
 ;; 以下は、もう使わんやろけど、一応おいておく
 ;;---------------------------------------------------------------------------
