@@ -22,35 +22,71 @@
     (let ((p (re-search-forward "\\[\\[" nil t)) ov)
       (if (numberp p)
           (progn
-            (setq ov (make-overlay
+            (add-text-properties
                       (progn      ; 始点
                         (goto-char p)
                         (point))
                       (progn      ; 終点
                         (goto-char (re-search-forward "\\]\\]" nil t))
-                        (- (point) 2))))     ; "]]"の分だけポイントをずらす
-            (overlay-put ov 'invisible t)
+                        (- (point) 2))
+                      '(invisible t))     ; "]]"の分だけポイントをずらす
             (set-to-invisible-in))
         (goto-char (point-min))
         nil)))
   (set-to-invisible-in))
-    
+
+(defun get-start-end ()
+  (interactive)
+  (let (start end)
+    (setq start (re-search-backward "\\[\\[" nil t))
+    (setq end (re-search-forward "\\]\\]" nil t))
+    (list start end)))
+
+(defun set-visible-off ()
+  (interactive)
+  (let (pos start end)
+    (setq pos (get-start-end))
+    (setq start (car pos))
+    (setq end (car (cdr pos)))
+    (add-text-properties start end '(invisible t))))
+
+(defun set-visible-on ()
+  (interactive)
+  (let (pos start end)
+    (setq pos (get-start-end))
+    (setq start (car pos))
+    (setq end (car (cdr pos)))
+    (add-text-properties start end '(invisible nil))))
+
 (defun my-change-visible ()
   (interactive)
-  (let (overlay-list)
-    (setq overlay-list (overlays-at (point)))
-    (message overlay-list)
-    (overlay-put overlay-list 'invisible nil)))
+  (if (get-text-property (point) 'invisible)
+      (set-visible-on)
+    (set-visible-off)))
+
+(defun my-keymap ()
+  (interactive)
+  (setq my-check-map (make-sparse-keymap))
+  (define-key my-check-map "\t" 'my-change-visible)
+  (define-key my-check-map "t" 'my-change-visible)
+  (define-key my-check-map "h" 'backward-char)
+  (define-key my-check-map "j" 'previous-line)
+  (define-key my-check-map "k" 'next-line)
+  (define-key my-check-map "l" 'forward-char)
+  (use-local-map my-check-map))
 
 (defun my-checksheet ()
   (interactive)
   (save-restriction
-    (let (my-local-map my-org-map)
-      (narrow-to-region (point-min) (point-max))
-      (setq my-local-map (make-sparse-keymap))
-      (setq my-org-map (copy-keymap my-local-map))
-      (define-key my-local-map "\C-i" 'my-change-visible)
-      (set-to-invisible))))
+    (narrow-to-region (point-min) (point-max))
+    (set-to-invisible)
+    (my-keymap)))
+
+;; (let (my-local-map my-org-map)
+    ;;   (setq my-local-map (make-sparse-keymap))
+    ;;   (setq my-org-map (copy-keymap my-local-map))
+    ;;   (set-to-invisible)
+    ;;   (define-key my-local-map "\C-i" 'my-change-visible))))
   
 
 ;;-----------------------------------------------------
@@ -92,3 +128,35 @@
 ;;; my-checksheet.el ends here
 ;;;-------------------------------------------
 ;;; 修正時刻： Thu Feb 20 07:32:22 2020
+
+
+
+;; バッファの最初から最後まで、[[]]で囲まれた部分にオーバーレイを設定して、
+;; 非表示にする
+;; (defun set-to-invisible ()
+;;   (interactive)
+;;   (goto-char (point-min))
+;;   (defun set-to-invisible-in ()
+;;     (let ((p (re-search-forward "\\[\\[" nil t)) ov)
+;;       (if (numberp p)
+;;           (progn
+;;             (setq ov (make-overlay
+;;                       (progn      ; 始点
+;;                         (goto-char p)
+;;                         (point))
+;;                       (progn      ; 終点
+;;                         (goto-char (re-search-forward "\\]\\]" nil t))
+;;                         (- (point) 2))))     ; "]]"の分だけポイントをずらす
+;;             (overlay-put ov 'invisible t)
+;;             (set-to-invisible-in))
+;;         (goto-char (point-min))
+;;         nil)))
+;;   (set-to-invisible-in))
+
+
+;; (defun my-change-visible ()
+;;   (interactive)
+;;   (let (overlay-list)
+;;     (setq overlay-list (overlays-at (point)))
+;;     (message overlay-list)
+;;     (overlay-put overlay-list 'invisible nil)))
