@@ -13,6 +13,20 @@
 ;;
 ;;; Code:
 
+(defface checksheet-hide-simple
+  '(
+    (((class color) (type tty) (background dark)) (:background "cyan" :foreground "red"))
+    (((class color) (type x) (background dark)) (:background "glay" :foreground "red"))
+    (t (:underline t)))
+  "単純な色の設定")
+
+;; (defface checksheet-hide
+;;   '(
+;;     (((class color) (type tty) (background dark)) (:background "glay" :foreground "red"))
+;;     (((class color) (type x) (background light)) (:background "glay" :foreground "red"))
+;;     (t (:underline t)))
+;;     "-- hide face --")
+
 ;; バッファの最初から最後まで、[[]]で囲まれた部分にオーバーレイを設定して、
 ;; 非表示にする
 (defun set-to-invisible ()
@@ -25,11 +39,12 @@
             (add-text-properties
                       (progn      ; 始点
                         (goto-char p)
-                        (point))
+                        (- (point) 2))
                       (progn      ; 終点
                         (goto-char (re-search-forward "\\]\\]" nil t))
-                        (- (point) 2))
-                      '(invisible t))     ; "]]"の分だけポイントをずらす
+                        (point))
+                                        ; "]]"の分だけポイントをずらす
+                      '(face checksheet-hide-simple display " ??? "))     
             (set-to-invisible-in))
         (goto-char (point-min))
         nil)))
@@ -37,8 +52,10 @@
 
 (defun get-start-end ()
   (interactive)
-  (let (start end)
-    (setq start (re-search-backward "\\[\\[" nil t))
+  (let (start end p)
+    (setq p (point))
+    (setq start (next-property-change p))
+    ;(setq start (text-property-any p (+ p 10) 'display " ??? "))
     (setq end (re-search-forward "\\]\\]" nil t))
     (list start end)))
 
@@ -48,7 +65,10 @@
     (setq pos (get-start-end))
     (setq start (car pos))
     (setq end (car (cdr pos)))
-    (add-text-properties start end '(invisible t))))
+    (add-text-properties start end '(display " ??? "))))
+
+
+
 
 (defun set-visible-on ()
   (interactive)
@@ -56,13 +76,19 @@
     (setq pos (get-start-end))
     (setq start (car pos))
     (setq end (car (cdr pos)))
-    (add-text-properties start end '(invisible nil))))
+    (remove-text-properties start end '(display nil))))
 
 (defun my-change-visible ()
   (interactive)
-  (if (get-text-property (point) 'invisible)
-      (set-visible-on)
-    (set-visible-off)))
+  (let (p)
+    (setq p (next-property-change (point)))
+    (if (numberp p) (set-visible-on)
+      (message "もうないよ")
+      nil)))
+
+  ;; (if (eq (get-text-property (point) 'display) " ??? ")
+  ;;     (set-visible-on)
+  ;;   (set-visible-off)))
 
 (defun my-keymap ()
   (interactive)
